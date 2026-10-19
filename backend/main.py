@@ -51,75 +51,98 @@ USER_WATCHLIST = ["HPG", "FPT", "VCB", "PVD", "MWG", "VHM", "VHC"]
 def health():
     return {"status": "ok", "timestamp": datetime.now(VN_TZ).isoformat()}
 
+import concurrent.futures
+
+# In-memory cache for signals to serve instantly
+_SIGNALS_CACHE = {"data": None, "timestamp": 0}
+
 @app.get("/api/signals")
 def get_signals(
     min_score: int = Query(default=50, ge=0, le=100),
     sector: Optional[str] = None
 ):
     """Scan Vietnamese stocks and return ranked recommendations with target prices."""
-    symbols = get_stock_listing()
-    results = []
-    
+    global _SIGNALS_CACHE
+    import time
+    now_ts = time.time()
+
+    # Reuse calculated signals cache if under 2 minutes old
+    all_evaluated = []
+    if _SIGNALS_CACHE["data"] and (now_ts - _SIGNALS_CACHE["timestamp"] < 120):
+        all_evaluated = _SIGNALS_CACHE["data"]
+    else:
+        symbols = get_stock_listing()
+
+        def _evaluate_symbol(sym):
+            try:
+                info = get_company_info(sym)
+                df = get_price_history(sym, days=180)
+                if df is None or len(df) < 25:
+                    return None
+
+                indicators = calculate_indicators(df)
+                financials = get_financial_data(sym)
+                score, breakdown, signal_type = calculate_total_score(sym, indicators, financials)
+                targets = calculate_price_targets(sym, df, indicators, financials)
+
+                curr_price = float(df["close"].iloc[-1])
+                prev_price = float(df["close"].iloc[-2]) if len(df) > 1 else curr_price
+                change_pct = round(((curr_price - prev_price) / prev_price) * 100, 2)
+
+                return {
+                    "symbol": sym,
+                    "company_name": info["name"],
+                    "sector": info["sector"],
+                    "price": curr_price,
+                    "change_pct": change_pct,
+                    "score": score,
+                    "signal": signal_type,
+                    "technical_score": breakdown["technical_score"],
+                    "seasonal_score": breakdown["seasonal_score"],
+                    "macro_score": breakdown["macro_score"],
+                    "financial_score": breakdown["financial_score"],
+                    "buy_price": targets.get("buy_price"),
+                    "cutloss": targets.get("cutloss"),
+                    "cutloss_pct": targets.get("cutloss_pct"),
+                    "tp1": targets.get("tp1"),
+                    "tp1_pct": targets.get("tp1_pct"),
+                    "tp2": targets.get("tp2"),
+                    "tp2_pct": targets.get("tp2_pct"),
+                    "tp3": targets.get("tp3"),
+                    "tp3_pct": targets.get("tp3_pct"),
+                    "risk_reward": targets.get("risk_reward_ratio")
+                }
+            except Exception as e:
+                logger.debug("Error evaluating %s: %s", sym, e)
+                return None
+
+        with concurrent.futures.ThreadPoolExecutor(max_workers=12) as executor:
+            items = list(executor.map(_evaluate_symbol, symbols))
+
+        all_evaluated = [it for it in items if it is not None]
+        all_evaluated.sort(key=lambda x: x["score"], reverse=True)
+        _SIGNALS_CACHE = {"data": all_evaluated, "timestamp": now_ts}
+
+    # Filter by sector & min_score
     summary = {"strong_buy": 0, "buy": 0, "watch": 0, "avoid": 0}
+    results = []
 
-    for sym in symbols:
-        info = get_company_info(sym)
-        if sector and sector != "Tất cả" and info["sector"] != sector:
-            continue
-
-        df = get_price_history(sym, days=180)
-        if df is None or len(df) < 25:
-            continue
-
-        indicators = calculate_indicators(df)
-        financials = get_financial_data(sym)
-
-        score, breakdown, signal_type = calculate_total_score(sym, indicators, financials)
-
-        if signal_type == "STRONG_BUY":
+    for item in all_evaluated:
+        st = item["signal"]
+        if st == "STRONG_BUY":
             summary["strong_buy"] += 1
-        elif signal_type == "BUY":
+        elif st == "BUY":
             summary["buy"] += 1
-        elif signal_type == "WATCH":
+        elif st == "WATCH":
             summary["watch"] += 1
         else:
             summary["avoid"] += 1
 
-        if score < min_score:
+        if sector and sector != "Tất cả" and item["sector"] != sector:
             continue
-
-        targets = calculate_price_targets(sym, df, indicators, financials)
-        
-        curr_price = float(df["close"].iloc[-1])
-        prev_price = float(df["close"].iloc[-2]) if len(df) > 1 else curr_price
-        change_pct = round(((curr_price - prev_price) / prev_price) * 100, 2)
-
-        results.append({
-            "symbol": sym,
-            "company_name": info["name"],
-            "sector": info["sector"],
-            "price": curr_price,
-            "change_pct": change_pct,
-            "score": score,
-            "signal": signal_type,
-            "technical_score": breakdown["technical_score"],
-            "seasonal_score": breakdown["seasonal_score"],
-            "macro_score": breakdown["macro_score"],
-            "financial_score": breakdown["financial_score"],
-            "buy_price": targets.get("buy_price"),
-            "cutloss": targets.get("cutloss"),
-            "cutloss_pct": targets.get("cutloss_pct"),
-            "tp1": targets.get("tp1"),
-            "tp1_pct": targets.get("tp1_pct"),
-            "tp2": targets.get("tp2"),
-            "tp2_pct": targets.get("tp2_pct"),
-            "tp3": targets.get("tp3"),
-            "tp3_pct": targets.get("tp3_pct"),
-            "risk_reward": targets.get("risk_reward_ratio")
-        })
-
-    # Sort descending by score
-    results.sort(key=lambda x: x["score"], reverse=True)
+        if item["score"] < min_score:
+            continue
+        results.append(item)
 
     # Contextual alerts
     seasonal_ctx = get_current_seasonal_context()
@@ -204,9 +227,9 @@ def get_seasonal_page_data():
     calendar = get_seasonal_calendar()
     context = get_current_seasonal_context()
     return {
-        "current_month": context["month"],
-        "month_name": context["month_name"],
-        "active_events": context["active_events"],
+        "current_month": context.get("current_month", datetime.now(VN_TZ).month),
+        "month_name": context.get("current_month_name", datetime.now(VN_TZ).strftime("%B")),
+        "active_events": context.get("active_events", []),
         "calendar": calendar
     }
 
