@@ -181,33 +181,29 @@ def get_vnindex_stats() -> Dict[str, Any]:
     }
 
     try:
-        from vnstock import Vnstock
-        vn = Vnstock()
-        stock = vn.stock(symbol="VNINDEX", source="TCBS")
-        end_date = datetime.now(VN_TZ).strftime("%Y-%m-%d")
-        start_date = (datetime.now(VN_TZ) - timedelta(days=60)).strftime("%Y-%m-%d")
-        hist = stock.quote.history(start=start_date, end=end_date, interval="1D")
-
-        if hist is not None and not hist.empty:
-            hist.columns = [c.lower() for c in hist.columns]
-            rename = {"c": "close", "o": "open", "h": "high", "l": "low", "v": "volume"}
-            hist.rename(columns=rename, inplace=True)
-
-            import pandas as pd
-            hist["close"] = pd.to_numeric(hist["close"], errors="coerce")
-            hist.dropna(subset=["close"], inplace=True)
-
-            latest = float(hist["close"].iloc[-1])
-            prev = float(hist["close"].iloc[-2]) if len(hist) >= 2 else latest
-            change_pct = (latest - prev) / prev * 100 if prev > 0 else 0.0
-            ma20 = float(hist["close"].rolling(20).mean().iloc[-1]) if len(hist) >= 20 else None
-
-            result.update({
-                "price": round(latest, 2),
-                "change_pct": round(change_pct, 2),
-                "ma20": round(ma20, 2) if ma20 else None,
-                "trend": "bullish" if (ma20 and latest > ma20) else "bearish",
-            })
+        import requests
+        now_ts = int(time.time())
+        from_ts = now_ts - (60 * 24 * 3600)
+        url = f"https://dchart-api.vndirect.com.vn/dchart/history?resolution=D&symbol=VNINDEX&from={from_ts}&to={now_ts}"
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+            "Referer": "https://dchart.vndirect.com.vn/"
+        }
+        r = requests.get(url, headers=headers, timeout=5)
+        if r.status_code == 200:
+            data = r.json()
+            closes = data.get("c", [])
+            if closes and len(closes) >= 2:
+                latest = float(closes[-1])
+                prev = float(closes[-2])
+                change_pct = (latest - prev) / prev * 100 if prev > 0 else 0.0
+                ma20 = sum(closes[-20:]) / len(closes[-20:]) if len(closes) >= 20 else latest
+                result.update({
+                    "price": round(latest, 2),
+                    "change_pct": round(change_pct, 2),
+                    "ma20": round(ma20, 2),
+                    "trend": "bullish" if latest > ma20 else "bearish",
+                })
     except Exception as exc:
         logger.warning("VN-Index stats failed: %s", exc)
 
