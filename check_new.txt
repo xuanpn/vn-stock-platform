@@ -1,0 +1,34 @@
+﻿FILE 1 sheets:
+  [XXX]: 0 rows x 0 cols
+  [Recovered_Sheet1]: 0 rows x 0 cols
+  [T01]: 313 rows x 22 cols
+  [T02]: 313 rows x 21 cols
+  [T3]: 334 rows x 21 cols
+  [T4]: 321 rows x 21 cols
+  [T5]: 318 rows x 21 cols
+  [T6]: 317 rows x 21 cols
+  [T7]: 330 rows x 21 cols
+  [T8]: 321 rows x 21 cols
+  [T9]: 324 rows x 21 cols
+FILE 2 (NHCS 25.8): 298 rows x 20 cols
+  F2[7,0]: STT
+  F2[7,1]: Hß╗ì v├á t├¬n
+  F2[7,2]: ─Éß╗ïa chß╗ë
+  F2[7,3]: M├ú sß╗æ BHXH
+  F2[7,4]: Sß╗æ sß╗ò c┼⌐
+  F2[7,5]: Sß╗æ thß║╗ BHYT
+  F2[7,6]: Ng├áy sinh
+  F2[7,7]: Giß╗¢i t├¡nh
+  F2[7,8]: N╞íi ─æ─âng k├╜ KCB
+  F2[7,9]: C─ân cß╗⌐ ─æ├│ng BHXH, BHYT, BHTN, BHTNL─É-BNN
+  F2[7,14]: Tiß╗ün l╞░╞íng ─æ├│ng BHXH
+  F2[7,15]: Tiß╗ün l╞░╞íng ─æ├│ng BHYT
+  F2[7,16]: Tiß╗ün l╞░╞íng ─æ├│ng BHTN
+  F2[7,17]: Tiß╗ün l╞░╞íng ─æ├│ng BHTNL─É, BNN
+  F2[7,18]: Chß╗⌐c danh c├┤ng viß╗çc
+  F2[8,9]: Tiß╗ün l╞░╞íng tiß╗ün c├┤ng
+  F2[8,10]: Phß╗Ñ cß║Ñp
+  F2[9,10]: Chß╗⌐c vß╗Ñ
+  F2[9,11]: TN VK
+  F2[9,12]: TN NG
+  F2[9,13]: Kh├íc

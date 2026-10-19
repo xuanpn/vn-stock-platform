@@ -1,0 +1,16 @@
+﻿python : C:\Users\cntt.ptda12\AppData\Local\Programs\Python\Python313\python.exe: can't open file "D:\\SP\\import 
+xlrd\nimport openpyxl\nfrom openpyxl.styles import PatternFill, Font, Alignment, Border, Side\nfrom openpyxl.utils 
+import get_column_letter\n\n# ==================== READ FILE 1 - Sheet T7 ====================\nf1 = r'd:\\SP\\DS  NOP 
+BH NAM 2026_TOAN TINH.xls'\nwb1 = xlrd.open_workbook(f1)\nws1 = wb1.sheet_by_name('T7')\n\n# Data starts from row 
+index 9 (row 10 in Excel)\n# col 1 = Ho va ten, col 9 = Tien luong dong BHXH\ndata_f1 = {}\nfor r in range(9, 
+ws1.nrows):\n    ten = str(ws1.cell_value(r, 1)).strip()\n    luong_raw = ws1.cell_value(r, 9)\n    if ten and ten not 
+in ('', 'H\\u1ec7 s\\u1ed1 t\\u00ednh') and isinstance(luong_raw, (int, float)) and luong_raw > 0:\n        try:\n     
+       luong = float(luong_raw)\n        except:\n            luong = 0\n        data_f1[ten] = luong\n\nprint(f'File 
+1 T7: {len(data_f1)} records')\nfor k, v in list(data_f1.items())[:5]:\n    print(f'  [{k}] = {v:,.0f}')": [Errno 2] 
+No such file or directory
+At line:1 char:93
++ ... WebProxy = New-Object System.Net.WebProxy($env:HTTP_PROXY); python @"
++                                                                 ~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (C:\Users\cntt.p...le or directory:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 

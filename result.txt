@@ -1,0 +1,10 @@
+﻿File 1 T7: 292 nguoi
+File 2:    273 nguoi
+Chung ten: 255 ten
+Luong lech: 18 truong hop
+Chi co F1:  33 nguoi
+Chi co F2:  15 nguoi
+Da xuat: d:\SP\KET_QUA_SO_SANH_BH_T8.xlsx
+  Sheet 1 - Luong lech nhau:     18 truong hop
+  Sheet 2 - Chi co trong File 1: 33 nguoi
+  Sheet 3 - Chi co trong File 2: 15 nguoi

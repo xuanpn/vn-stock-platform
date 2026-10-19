@@ -1,0 +1,12 @@
+# Node / Frontend
+node_modules/
+dist/
+.DS_Store
+
+# Python / Backend
+__pycache__/
+*.pyc
+.env
+.venv/
+env/
+portfolio_data.json

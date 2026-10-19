@@ -1,0 +1,13 @@
+﻿T├¬n tr├╣ng trong File 1 T7: ['Nguyß╗àn Thß╗ï H╞░╞íng', 'Nguyß╗àn Quang Huy', 'Ho├áng V─ân ─Éß╗⌐c']
+T├¬n tr├╣ng trong File 2: ['Ho├áng V─ân ─Éß╗⌐c', 'Nguyß╗àn Thß╗ï H╞░╞íng', 'Nguyß╗àn Quang Huy']
+
+─Éß║╖ng ─Éß╗⌐c Thß║»ng: F1=13,473,500  F2=13,435,500  diff=-38,000
+Nguyß╗àn Phan Vß╗╣: F1=12,856,000  F2=14,085,500  diff=1,229,500
+Phan Quang Tiß║┐n: F1=13,083,500  F2=13,045,500  diff=-38,000
+V┼⌐ Thß║┐ Anh: F1=12,856,000  F2=12,818,000  diff=-38,000
+─Éß╗ù Ngß╗ìc Tuß║Ñn: F1=12,856,000  F2=12,818,000  diff=-38,000
+V┼⌐ Tuß║Ñn Anh: F1=12,856,000  F2=12,818,000  diff=-38,000
+V┼⌐ V─ân S╞ín: F1=12,271,000  F2=12,233,000  diff=-38,000
+V┼⌐ Thß╗ï Hß╗ông Th├║y: F1=10,256,000  F2=10,218,000  diff=-38,000
+V╞░╞íng V├ón Kh├ính: F1=8,143,500  F2=8,105,500  diff=-38,000
+Phß║ím V─ân L╞░╞íng: F1=8,728,500  F2=8,690,500  diff=-38,000
