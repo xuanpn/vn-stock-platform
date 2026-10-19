@@ -47,6 +47,24 @@ VN_TZ = pytz.timezone("Asia/Ho_Chi_Minh")
 # In-memory watchlist
 USER_WATCHLIST = ["HPG", "FPT", "VCB", "PVD", "MWG", "VHM", "VHC"]
 
+@app.get("/")
+def root():
+    return {
+        "status": "online",
+        "service": "VN Stock Intelligence & Paper Trading API",
+        "docs": "/docs",
+        "health": "/health",
+        "endpoints": {
+            "signals": "/api/signals",
+            "stock_detail": "/api/stock/{symbol}",
+            "seasonal": "/api/seasonal",
+            "macro": "/api/macro",
+            "portfolio": "/api/portfolio",
+            "screener": "/api/screener"
+        },
+        "timestamp": datetime.now(VN_TZ).isoformat()
+    }
+
 @app.get("/health")
 def health():
     return {"status": "ok", "timestamp": datetime.now(VN_TZ).isoformat()}
